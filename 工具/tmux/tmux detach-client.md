@@ -1,3 +1,8 @@
+
+---
+tag: tmux
+---
+
 With `tmux list-client`, you can list all clients connected to `tmux` sessions. For instance:
 
 ```shell
