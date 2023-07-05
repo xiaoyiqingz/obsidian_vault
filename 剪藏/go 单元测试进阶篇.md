@@ -1,6 +1,4 @@
 
-# go 单元测试进阶篇
-
 [腾讯云开发者](https://juejin.cn/user/3456520257538830/posts)
 
 2017-04-01 10:11 1562
@@ -19,43 +17,58 @@
 
 gomock模拟对象的方式是让用户声明一个接口，然后使用gomock提供的mockgen工具生成mock对象代码。要模拟(mock)被测试代码的依赖对象时候，即可使用mock出来的对象来模拟和记录依赖对象的各种行为：比如最常用的返回值，调用次数等等。文字叙述有点抽象，直接上代码：
 
-![](assets/1688555844-5518033921b58812efde522f9707dfef.png)
+![[1.png]]
 
 dick.go中DickFunc依赖外部对象OutterObj，本示例就是说明如何使用gomock框架控制所依赖的对象。
 
-go
+```go
+func DickFunc( outterObj MockInterface,para int)(result int){
+    fmt.Println("This init DickFunc")
+    fmt.Println("call outter.func:")
 
-复制代码
-
-`func DickFunc( outterObj MockInterface,para int)(result int){     fmt.Println("This init DickFunc")     fmt.Println("call outter.func:")     return outterObj.OutterFunc(para) }`
+    return outterObj.OutterFunc(para)
+}
+```
 
 mockgen工具命令是：
 
-`mockgen -source {source_file}.go -destination {dest_file}.go`
+```bash
+mockgen -source {source_file}.go -destination {dest_file}.go
+```
 
 比如，本示例即是：
 
-`mockgen -source src_mock.go -destination dst_mock.go`
+```bash
+mockgen -source src_mock.go -destination dst_mock.go
+````
 
 执行完后，可在同目录下找到生成的dst\_mock.go文件，可以看到mockgen工具也实现了接口：
 
-![](assets/1688555844-0bb2d41410d944745678e4255a6169e6.png)
+![[2.png]]
 
 接下来就可以使用mockgen工具生成的NewMockInterFace来生产mock对象，使用这个mock对象。OutterFunc()这个函数，gomock在控制mock类时支持链式编程的方式，其原理和其他链式编程类似一直维持了一个Call对象，把需要控制的方法名，入参，出参，调用次数以及前置和后置动作等，最后使用反射来调用方法，所以这个Call对象是mock对象的代理。jmockit的早期版本也是jdk自带的java.reflect.Proxy动态代理实现的(最近的版本是动态Instrumentation配合代理模式)。  
 
-![](assets/1688555844-c2dec28ddbb472f236d7a240d525fe5d.png)
+![[3.png]]
 
 在本示例中只简单的更改了返回值，抛砖引玉：
 
-css
+```go
+func TestDickFunc(t *testing.T ){
+   mockCtrl := gomock.NewController(t)
+//defer mockCtrl.Finish()
 
-复制代码
+   mockObj := dick.NewMockMockInterface(mockCtrl)
+   mockObj.EXPECT().OutterFunc(3).Return(10)
 
-`func TestDickFunc(t *testing.T ){    mockCtrl := gomock.NewController(t) //defer mockCtrl.Finish()    mockObj := dick.NewMockMockInterface(mockCtrl)    mockObj.EXPECT().OutterFunc(3).Return(10)    result :=dick.DickFunc(mockObj,3)    t.Log("resutl:",result) }`
+   result :=dick.DickFunc(mockObj,3)
+   t.Log("resutl:",result)
+
+}
+```
 
 使用go test命令执行这个单测  
 
-![](assets/1688555844-3a5b2d47cfb2da0d7dfb38b48358a79b.png)
+![[4.png]]
 
 从结果看：本来应该输出3，最后输出就是10，和其他语言mock框架相似，生产出来的Mock对象不用自己去重定义这么麻烦。
 
@@ -69,11 +82,21 @@ css
 
 看一个简单的示例就轻松的看懂了：
 
-css
+```go
+func TestHttp(t *testing.T) {
 
-复制代码
+    handler := FruitServer()
 
-`func TestHttp(t *testing.T) {     handler := FruitServer()     server := httptest.NewServer(handler)     defer server.Close()     e := httpexpect.New(t, server.URL)     e.GET("/fruits").         Expect().         Status(http.StatusOK).JSON().Array().Empty() }`
+    server := httptest.NewServer(handler)
+    defer server.Close()
+
+    e := httpexpect.New(t, server.URL)
+
+    e.GET("/fruits").
+        Expect().
+        Status(http.StatusOK).JSON().Array().Empty()
+}
+```
 
 其中还支持对不同方法(包括Header,Post等)的构造以及返回值Json的自定义，更多细节查看其[官网](https://link.juejin.cn/?target=http%3A%2F%2Fwww.ctolib.com%2Farticle%2FgoGitHub%2Fhttpexpect.html "http://www.ctolib.com/article/goGitHub/httpexpect.html")
 
@@ -91,19 +114,98 @@ css
 
 比如有这样的被测函数：
 
-go
+```go
+func recordStats(db *sql.DB, userID, productID int64) (err error) {
+    tx, err := db.Begin()
+    if err != nil {
+        return
+    }
 
-复制代码
+    defer func() {
+        switch err {
+        case nil:
+            err = tx.Commit()
+        default:
+            tx.Rollback()
+        }
+    }()
 
-`func recordStats(db *sql.DB, userID, productID int64) (err error) {     tx, err := db.Begin()     if err != nil {         return     }     defer func() {         switch err {         case nil:             err = tx.Commit()         default:             tx.Rollback()         }     }()     if _, err = tx.Exec("UPDATE products SET views = views + 1"); err != nil {         return     }     if _, err = tx.Exec("INSERT INTO product_viewers (user_id, product_id) VALUES (?, ?)", userID, productID); err != nil {         return     }     return } func main() {     db, err := sql.Open("mysql", "root@/root")     if err != nil {         panic(err)     }     defer db.Close()     if err = recordStats(db, 1 , 5 ); err != nil {         panic(err)     } }`
+    if _, err = tx.Exec("UPDATE products SET views = views + 1"); err != nil {
+        return
+    }
+    if _, err = tx.Exec("INSERT INTO product_viewers (user_id, product_id) VALUES (?, ?)", userID, productID); err != nil {
+        return
+    }
+    return
+}
+
+func main() {
+
+    db, err := sql.Open("mysql", "root@/root")
+    if err != nil {
+        panic(err)
+    }
+    defer db.Close()
+
+    if err = recordStats(db, 1 , 5 ); err != nil {
+        panic(err)
+    }
+}
+```
 
 单测时：
 
-scss
+```go
+func TestShouldUpdateStats(t *testing.T) {
+    db, mock, err := sqlmock.New()
+    if err != nil {
+        t.Fatalf("mock error: '%s' ", err)
+    }
+    defer db.Close()
 
-复制代码
+    mock.ExpectBegin()
+    mock.ExpectExec("UPDATE products").WillReturnResult(sqlmock.NewResult(1, 1))
+    mock.ExpectExec("INSERT INTO product_viewers")
+          .WithArgs(2, 3)
+          .WillReturnResult(sqlmock.NewResult(1, 1))
+    mock.ExpectCommit()
 
-`func TestShouldUpdateStats(t *testing.T) {     db, mock, err := sqlmock.New()     if err != nil {         t.Fatalf("mock error: '%s' ", err)     }     defer db.Close()     mock.ExpectBegin()     mock.ExpectExec("UPDATE products").WillReturnResult(sqlmock.NewResult(1, 1))     mock.ExpectExec("INSERT INTO product_viewers")           .WithArgs(2, 3)           .WillReturnResult(sqlmock.NewResult(1, 1))     mock.ExpectCommit()     if err = recordStats(db, 2, 3); err != nil {         t.Errorf("exe error: %s", err)     }     if err := mock.ExpectationsWereMet(); err != nil {         t.Errorf("not implements: %s", err)     } } //测试回滚 func TestShouldRollbackStatUpdatesOnFailure(t *testing.T) {     db, mock, err := sqlmock.New()     if err != nil {         t.Fatalf("mock error: '%s'", err)     }     defer db.Close()     mock.ExpectBegin()     mock.ExpectExec("UPDATE products").WillReturnResult(sqlmock.NewResult(1, 1))     mock.ExpectExec("INSERT INTO product_viewers")            .WithArgs(2, 3)            .WillReturnError(fmt.Errorf("some error"))     mock.ExpectRollback()     // 执行被测方法,有错     if err = recordStats(db, 2, 3); err == nil {         t.Errorf("not error")     }     // 执行被测方法，mock对象     if err := mock.ExpectationsWereMet(); err != nil {         t.Errorf("not implements: %s", err)     } }`
+    if err = recordStats(db, 2, 3); err != nil {
+        t.Errorf("exe error: %s", err)
+    }
+
+    if err := mock.ExpectationsWereMet(); err != nil {
+        t.Errorf("not implements: %s", err)
+    }
+}
+
+//测试回滚
+func TestShouldRollbackStatUpdatesOnFailure(t *testing.T) {
+    db, mock, err := sqlmock.New()
+    if err != nil {
+        t.Fatalf("mock error: '%s'", err)
+    }
+    defer db.Close()
+
+    mock.ExpectBegin()
+    mock.ExpectExec("UPDATE products").WillReturnResult(sqlmock.NewResult(1, 1))
+    mock.ExpectExec("INSERT INTO product_viewers")
+           .WithArgs(2, 3)
+           .WillReturnError(fmt.Errorf("some error"))
+    mock.ExpectRollback()
+
+    // 执行被测方法,有错
+    if err = recordStats(db, 2, 3); err == nil {
+        t.Errorf("not error")
+    }
+
+    // 执行被测方法，mock对象
+    if err := mock.ExpectationsWereMet(); err != nil {
+        t.Errorf("not implements: %s", err)
+    }
+}
+```
+
 
 更多例子和详情，请查看官网:
 
