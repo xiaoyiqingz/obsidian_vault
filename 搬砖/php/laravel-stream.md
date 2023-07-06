@@ -30,14 +30,26 @@ class StreamsController extends Controller
                 $latestTrades = Trade::with('user', 'stock')->latest()->first();
                 
                 if ($latestTrades) {
-                    echo 'data: {"latest_trade_user":"' . $latestTrades->user->name . '", "latest_trade_stock":"' . $latestTrades->stock->symbol . '", "latest_trade_volume":"' . $latestTrades->volume . '", "latest_trade_price":"' . $latestTrades->stock->price . '", "latest_trade_type":"' . $latestTrades->type . '"}' . "\n\n";
+					echo 'data: {"latest_trade_user":"' .
+					  $latestTrades->user->name .
+					  '", "latest_trade_stock":"' .
+					  $latestTrades->stock->symbol .
+					  '", "latest_trade_volume":"' .
+					  $latestTrades->volume .
+					  '", "latest_trade_price":"' .
+					  $latestTrades->stock->price .
+					  '", "latest_trade_type":"' .
+					  $latestTrades->type . '"}' .
+					  "\n\n";
                 }
 
                 ob_flush();
                 flush();
 
                 // Break the loop if the client aborted the connection (closed the page)
-                if (connection_aborted()) {break;}
+                if (connection_aborted()) {
+	                break;
+                }
                 usleep(50000); // 50ms
             }
         }, 200, [
