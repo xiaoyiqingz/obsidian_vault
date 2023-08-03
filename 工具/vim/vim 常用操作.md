@@ -4,7 +4,7 @@ tag: vim
 
 1.  删除含有pattern的行
 
-```vim
+```bash
 :g/pattern/d
 :g/^$/d  删除空白行
 :s/^#.*$//g   删除以#开头的 
@@ -14,20 +14,20 @@ tag: vim
 
 2.  删除不包含pattern的行
 
-```vim
+```bash
 :g!/pattern/d
 :v/pattern/d
 ```
  
 3.  将多行转换成一行
 
-```vim
+```bash
 :1,$s/\n//g
 ```
 
 4.  倒叙文件行(可以用tac将文本内容重定向到另一个文本中)
 
-```vim
+```bash
 :g/^/m 0
 ```
 
@@ -43,21 +43,21 @@ tag: vim
 	    (问题，单独一行为一列比较方便，如果是在行中插入的列，此种方式不是很好用，另外日期不能自增)
 
 6.  查找相同的两行
-```vim
+```bash
 :sort
 /^\(.\+\)$\n\1
 ```
 
 7.  删除重复行
 
-```vim
+```bash
 :sort
 :g/^\(.\+\)$\n\1/d
 ```
 
 8.查询一行字符串出现重复次数
 
-```vim
+```bash
 string="text,text,text,text"
 char=","
 echo "${string}" | awk -F"${char}" '{print NF-1}'
@@ -67,7 +67,7 @@ echo "${string}" | awk -F"${char}" '{print NF-1}'
 
 9.生成递增数据
 
-```vim
+```bash
 vim 1 -20 
 新建文本
 插入模式
@@ -76,7 +76,7 @@ ctrl-r = range(1,200)
 
 10 xargs
 
-```shell
+```bash
 cat a.txt | xargs  -n 1  -P 4  php artisan ts:schedule --place
 -P 4  4个线程
 -n 1 一次处理1个数据
@@ -90,7 +90,7 @@ cat a.txt | xargs  -n 1  -P 4  php artisan ts:schedule --place
 
 12.  隔行插入
 
-```vim
+```bash
 :%s/.*\n.*\n.*\n/\0你要插入的内容\r/g
 
 `%s` - 对于文件全部内容
