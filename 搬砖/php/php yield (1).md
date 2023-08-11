@@ -167,3 +167,5 @@ didishodazagong:test didi$
 ```
 
 接着说上面demo为啥会出现这种情况呢？最早的那会儿，大概一两年前吧，我一直以为这是一个bug，后来才发现实际上并不是，这个是一个预期的行为，具体说就是当你调用Generator的send()时，会自动触发一次next()。
+
+> [PHP中的yield与协程](https://cloud.tencent.com/developer/article/1592691)
