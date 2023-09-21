@@ -31,29 +31,11 @@
 
 这个其实是写在最后的，之所以放在这里，是因为它**很重要**！
 
-如果你有一定的MD语法基础，可以直接 #避免 
-
-  
-
-## Markdown 相关软件推荐
-
-- **Markdown** **书写软件** 推荐：**Typora** 优秀的 MD网页文章 书写软件
-    - [点击跳转下载地址](https://www.typora.io/ "Typora编辑器")
-        - [#提示](https://publish.obsidian.md/#%E6%8F%90%E7%A4%BA) 以前是免费的，现在收费了，不过是买断制
-- **Markdown** **笔记软件** 推荐：**Obsidian** **银河系最强** **MD+双向链** 笔记软件
-    - [点击跳转下载地址](https://obsidian.md/ "银河系第一笔记软件 Obsidian")
-
-  
-  
+如果你有一定的MD语法基础，可以直接 [[obsidian-markdown#特殊情况 文本修饰的中括号 | 点击跳转]]
 
 # Markdown 语法
 
-- **提示1：** 本教程推荐使用 **Obsidian** 打开阅读
-- **提示2：** 下文提到的所有标识符都是 **英文状态** 的 **！**
-
 ## 1. 标题&目录
-
-  
 
 ### 1.1 标题
 
@@ -73,8 +55,6 @@
 ###### 这是六级标题 
 ```
 
-  
-
 ### 1.2 目录
 
 - **目录的 格式：**
@@ -88,12 +68,8 @@
 [toc]
 ```
 
-  
-  
 
 ## 2. 斜体&粗体
-
-  
 
 ### 2.1 斜体
 
@@ -177,7 +153,6 @@ _**粗斜体文本6**_
 _**粗斜体文本5**_  
 _**粗斜体文本6**_
 
-  
 
 ### 2.4 斜体包含粗体
 
@@ -209,7 +184,6 @@ _这也是一段斜体中**包含粗体**的文字_
 _这又是一段斜体中**包含粗体**的文字_  
 _这还是一段斜体中**包含粗体**的文字_
 
-  
 
 ### 2.5 粗体包含斜体
 
@@ -241,8 +215,6 @@ __这还是一段粗体中*包含斜体*的文字__
 **这又是一段粗体中_包含斜体_的文字**  
 **这还是一段粗体中_包含斜体_的文字**
 
-  
-  
 
 ## 3. 线
 
@@ -279,7 +251,6 @@ __这还是一段粗体中*包含斜体*的文字__
 
 ~~这是一段加了删除线的文本~~
 
-  
 
 ### 3.3 文本下划线
 
@@ -292,14 +263,11 @@ __这还是一段粗体中*包含斜体*的文字__
 
 #### 示范
 
-这是一段加了下划线的文本
+<u>这是一段加了下划线的文本</u>
 
   
-  
-
 ## 4. 列表&引用
 
-  
 
 ### 4.1 有序列表
 
@@ -702,12 +670,9 @@ __这还是一段粗体中*包含斜体*的文字__
 |:-:|:-:|
 |这是第一行文本  <br>这是另起一行的文本|普通文本|
 
-  
-  
+    
 
 ## 7. 代码域
-
-  
 
 ### 7.1 行内代码
 
@@ -976,8 +941,6 @@ console.log(sum); // 打印总和
 **效果：**
 
 ``这是一段能显示`反引号`的行内代码``
-
-  
   
 
 ## 8. 任务列表（待办）
@@ -1064,12 +1027,8 @@ Obsidian里的
 
 ### 示范 (只有切换至 编辑模式 才能看到喔)
 
-  
-  
 
 ## 10. 变量
-
-  
 
 ### 10.1 网页链接变量
 
@@ -1095,7 +1054,6 @@ Obsidian里的
 
 [知乎-有问题，就会有答案](https://www.zhihu.com/)
 
-  
 
 ### 10.2 脚注
 
@@ -1118,7 +1076,6 @@ Obsidian里的
 
 鲁迅原名是什么[[1]](https://publish.obsidian.md/#fn-1-a37bd9f9515e9a56)，浙江哪里人[[2]](https://publish.obsidian.md/#fn-2-a37bd9f9515e9a56)
 
-  
   
 
 ## 11. 拓展文本格式标记
@@ -1759,10 +1716,9 @@ $$
   
 
 - **效果：**
-
-  
-
-  
+  $$ \ce{Zn^2+ <=>[+ 2OH-][+ 2H+] $\underset{\text{amphoteres Hydroxid}}{\ce{Zn(OH)2 v}}$ <=>[+ 2OH-][+ 2H+] $\underset{\text{Hydroxozikat}}{\ce{[Zn(OH)4]^2-}}$} $$
+$$ \begin{array}{lll} \nabla\times E &=& -\;\frac{\partial{B}}{\partial{t}} \ \nabla\times H &=& \frac{\partial{D}}{\partial{t}}+J \ \nabla\cdot D &=& \rho \ \nabla\cdot B &=& 0 \ \end{array} $$
+  $$ i\hbar\frac{\partial \psi}{\partial t} = \frac{-\hbar^2}{2m} \left(\frac{\partial^2}{\partial x^2} + \frac{\partial^2}{\partial y^2}+\frac{\partial^2}{\partial z^2} \right) \psi + V \psi $$
 
 - **补充：**
     - 需要详细教程的，可戳下方链接
@@ -1806,6 +1762,20 @@ graph TB
 
 **渲染1：**
 
+```mermaid
+graph TB
+	%% s=start  e=end  f=fork  n=normal
+	
+	s([开始])-->f1{{if条件}};
+
+	%% 分支点2
+	f1--true-->n1[if语句块]-->e([结束]);
+	f1--false-->f2{{else if条件}};
+
+	%% 分支点1
+	f2--true-->n2[else if语句块]-->e;
+	f2--false-->n3[else语句块]-->e;
+```
   
 
 **源码2：**
@@ -1833,11 +1803,28 @@ graph LR
 ````
 
 **渲染2：**
-
+```mermaid
+graph LR
+	%% s=start  e=end  f= fork n=normal 
+	
+	%% 虚线
+	s[朱百六]-.->|子|n1[朱四九]-.->|子|n2[朱五四]-.->|子|f1_帝((朱八八))
+	
+	%% 分支点 朱八八
+	f1_帝-->|长子|f2[朱标]
+	f1_帝-->|次子|n3[朱樉]
+	f1_帝-->|三子|n4[朱棢]
+	f1_帝-->|四子|n5_帝((朱棣))
+	
+	%% 分支点 朱标
+	f2-->|长子|e1[朱雄英]
+	f2-->|次子|e2_帝((朱允炆))
+	
+	n5_帝-->|长子|e3[朱高炽]
+```
   
 
 ### 17.2 饼图
-
   
 
 **源码：**
@@ -1855,7 +1842,14 @@ pie
 
 **渲染：**
 
-6%10%70%13%为什么总是宅在家里？喜欢宅天气太热穷关你屁事
+```mermaid
+pie
+    title 为什么总是宅在家里？
+    "喜欢宅" : 45
+    "天气太热" : 70
+    "穷" : 500
+	"关你屁事" : 95
+```
 
   
 
@@ -1965,8 +1959,101 @@ sequenceDiagram
 
 **渲染：**
 
-AlyBobCofCai只复习了一部分没复习are contactingpar[askA][askB][self]loop[自问/Everymin]alt[is good][is common]opt[Extraresponse]明天是要考试吗？1好像是的！2你复习好了吗？3你复习好了吗？4我还没准备复习......5我什么时候开始复习呢？6复习了一点7我也是8你们怎么不回答我9AlyBobCofCai
-
+```mermaid
+sequenceDiagram
+		%% 自动编号
+		autonumber
+		%% 定义参与者并取别名，aliases：别名
+        participant A as Aly
+        participant B as Bob
+        participant C as CofCai
+        %% 便签说明
+        Note left of A: 只复习了一部分
+        Note right of B: 没复习
+        Note over A,B: are contacting
+        
+        A->>B: 明天是要考试吗？
+        B-->>A: 好像是的！
+        
+        %% 显示并行发生的动作，parallel：平行
+        %% par [action1]
+        rect rgb(0, 25, 155)
+            par askA
+                C -->> A:你复习好了吗？
+            and askB
+                C -->> B:你复习好了吗？
+            and self
+                C ->>C:我还没准备复习......
+            end
+        end
+        
+        %% 背景高亮，提供一个有颜色的背景矩形
+        rect rgb(25, 55, 0)
+            loop 自问/Every min
+            %% <br/>可以换行
+            C ->> C:我什么时候<br/>开始复习呢？
+            end
+        end
+        
+        %% 可选择路径
+        rect rgb(153, 83, 60)
+            alt is good
+                A ->> C:复习了一点
+            else is common
+                B ->> C:我也是
+            end
+            %% 没有else时可以提供默认的opt
+            opt Extra response
+                C ->> C:你们怎么不回答我
+            end
+        endsequenceDiagram
+		%% 自动编号
+		autonumber
+		%% 定义参与者并取别名，aliases：别名
+        participant A as Aly
+        participant B as Bob
+        participant C as CofCai
+        %% 便签说明
+        Note left of A: 只复习了一部分
+        Note right of B: 没复习
+        Note over A,B: are contacting
+        
+        A->>B: 明天是要考试吗？
+        B-->>A: 好像是的！
+        
+        %% 显示并行发生的动作，parallel：平行
+        %% par [action1]
+        rect rgb(0, 25, 155)
+            par askA
+                C -->> A:你复习好了吗？
+            and askB
+                C -->> B:你复习好了吗？
+            and self
+                C ->>C:我还没准备复习......
+            end
+        end
+        
+        %% 背景高亮，提供一个有颜色的背景矩形
+        rect rgb(25, 55, 0)
+            loop 自问/Every min
+            %% <br/>可以换行
+            C ->> C:我什么时候<br/>开始复习呢？
+            end
+        end
+        
+        %% 可选择路径
+        rect rgb(153, 83, 60)
+            alt is good
+                A ->> C:复习了一点
+            else is common
+                B ->> C:我也是
+            end
+            %% 没有else时可以提供默认的opt
+            opt Extra response
+                C ->> C:你们怎么不回答我
+            end
+        end
+```
   
 
 ### 17.4 甘特图
@@ -1991,7 +2078,17 @@ gantt
 
 **渲染：**
 
-2014-01-052014-01-122014-01-192014-01-262014-02-022014-02-092014-02-16A taskTask in secanother taskAnother taskSectionAnotherA Gantt Diagram
+```mermaid
+gantt
+    title A Gantt Diagram
+    dateFormat  YYYY-MM-DD
+    section Section
+    A task           :a1, 2014-01-01, 30d
+    Another task     :after a1  , 20d
+    section Another
+    Task in sec      :2014-01-12  , 12d
+    another task      : 24d
+```
 
 ### 17.5 类图
 
@@ -2024,7 +2121,29 @@ classDiagram
 ````
 
 **渲染：**
-
+```mermaid
+classDiagram
+    Animal <|-- Duck
+    Animal <|-- Fish
+    Animal <|-- Zebra
+    Animal : +int age
+    Animal : +String gender
+    Animal: +isMammal()
+    Animal: +mate()
+    class Duck{
+      +String beakColor
+      +swim()
+      +quack()
+    }
+    class Fish{
+      -int sizeInFeet
+      -canEat()
+    }
+    class Zebra{
+      +bool is_wild
+      +run()
+    }
+```
   
 
 ## 18. 标签 (Tag)
@@ -2106,6 +2225,8 @@ classDiagram
 
   
 ## 19. 避免标识符的滥用
+
+^101c82
 
 即使在 **Markdown** 中，也要尽量**避免**标识符的滥用
 
