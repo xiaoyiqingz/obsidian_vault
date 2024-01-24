@@ -124,9 +124,7 @@ gRPC 推荐使用 proto3 消息格式，在进行核心 API 的学习之前，�
 -   租约，消耗客户端保持活动消息的基元。
 -   锁，etcd 提供分布式共享锁的支持。
 -   选举，暴露客户端选举机制。
-
-![image.png](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/43ea4641fb3d4e09b8be13c42c9b345a~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp?)
-
+![[5.jpg]]
 #### 请求和响应
 
 etcd3 中的所有 RPC 都遵循相同的格式。每个 RPC 都有一个函数名，该函数将 NameRequest 作为参数并返回 NameResponse 作为响应。例如，这是 Range RPC 描述：
@@ -271,7 +269,7 @@ type RangeResponse struct {
 
 Kvs 字段，保存了本次 Get 查询到的所有 kv 对，我们继续看一下 mvccpb.KeyValue 对象的定义：
 
-```g0
+```go
 type KeyValue struct {
 
     Key []byte `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
@@ -293,7 +291,7 @@ type KeyValue struct {
 
 接下来，我们通过一个特别的 Get 选项，获取 aa 目录下的所有子目录：
 
-```css
+```go
 rangeResp, err := kv.Get(context.TODO(), "/aa", clientv3.WithPrefix())
 ```
 
@@ -308,13 +306,75 @@ withPrefix 实际上会转化为范围查询，它根据前缀 `/aa` 生成了�
 键值对的操作是 etcd 中最基本、最常用的功能，主要包括读、写、删除三种基本的操作。在 etcd 中定义了 kv 接口，用来对外提供这些操作，下面我们进行具体的测试：
 
 ```go
-package client import ( "context" "fmt" "github.com/google/uuid" "go.etcd.io/etcd/clientv3" "testing" "time" ) func TestKV(t *testing.T) { rootContext := context.Background() // 客户端初始化 cli, err := clientv3.New(clientv3.Config{ Endpoints: []string{"localhost:2379"}, DialTimeout: 2 * time.Second, }) // etcd clientv3 >= v3.2.10, grpc/grpc-go >= v1.7.3 if cli == nil || err == context.DeadlineExceeded { // handle errors fmt.Println(err) panic("invalid connection!") } // 客户端断开连接 defer cli.Close() // 初始化 kv kvc := clientv3.NewKV(cli) //获取值 ctx, cancelFunc := context.WithTimeout(rootContext, time.Duration(2)*time.Second) response, err := kvc.Get(ctx, "cc") cancelFunc() if err != nil { fmt.Println(err) } kvs := response.Kvs // 输出获取的 key if len(kvs) > 0 { fmt.Printf("last value is :%s\r\n", string(kvs[0].Value)) } else { fmt.Printf("empty key for %s\n", "cc") } //设置值 uuid := uuid.New().String() fmt.Printf("new value is :%s\r\n", uuid) ctx2, cancelFunc2 := context.WithTimeout(rootContext, time.Duration(2)*time.Second) _, err = kvc.Put(ctx2, "cc", uuid) // 设置成功之后，将该 key 对应的键值删除 if delRes, err := kvc.Delete(ctx2, "cc"); err != nil { fmt.Println(err) } else { fmt.Printf("delete %s for %t\n", "cc", delRes.Deleted > 0) } cancelFunc2() if err != nil { fmt.Println(err) } }
+package client
+
+import (
+	"context"
+	"fmt"
+	"github.com/google/uuid"
+	"go.etcd.io/etcd/clientv3"
+	"testing"
+	"time"
+)
+
+func TestKV(t *testing.T) {
+	rootContext := context.Background()
+	// 客户端初始化
+	cli, err := clientv3.New(clientv3.Config{
+		Endpoints:   []string{"localhost:2379"},
+		DialTimeout: 2 * time.Second,
+	})
+	// etcd clientv3 >= v3.2.10, grpc/grpc-go >= v1.7.3
+	if cli == nil || err == context.DeadlineExceeded {
+		// handle errors
+		fmt.Println(err)
+		panic("invalid connection!")
+	}
+	// 客户端断开连接
+	defer cli.Close()
+	// 初始化 kv
+	kvc := clientv3.NewKV(cli)
+	//获取值
+	ctx, cancelFunc := context.WithTimeout(rootContext, time.Duration(2)*time.Second)
+	response, err := kvc.Get(ctx, "cc")
+	cancelFunc()
+	if err != nil {
+		fmt.Println(err)
+	}
+	kvs := response.Kvs
+	// 输出获取的 key
+	if len(kvs) > 0 {
+		fmt.Printf("last value is :%s\r\n", string(kvs[0].Value))
+	} else {
+		fmt.Printf("empty key for %s\n", "cc")
+	}
+	//设置值
+	uuid := uuid.New().String()
+	fmt.Printf("new value is :%s\r\n", uuid)
+	ctx2, cancelFunc2 := context.WithTimeout(rootContext, time.Duration(2)*time.Second)
+	_, err = kvc.Put(ctx2, "cc", uuid)
+	// 设置成功之后，将该 key 对应的键值删除
+	if delRes, err := kvc.Delete(ctx2, "cc"); err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Printf("delete %s for %t\n", "cc", delRes.Deleted > 0)
+	}
+	cancelFunc2()
+	if err != nil {
+		fmt.Println(err)
+	}
+}
 ```
 
 如上的测试用例，主要是针对 kv 的操作，依次获取 key，即 Get()，对应 etcd 底层实现的 range 接口；其次是写入键值对，即 put 操作；最后删除刚刚写入的键值对。预期的执行结果如下所示：
 
-```sql
-=== RUN Test empty key for cc new value is: 41e1362a-28a7-4ac9-abf5-fe1474d93f84 delete cc for true --- PASS: Test (0.11s) PASS
+```css
+=== RUN   Test
+empty key for cc
+new value is: 41e1362a-28a7-4ac9-abf5-fe1474d93f84
+delete cc for true
+--- PASS: Test (0.11s)
+PASS
 ```
 
 可以看到，刚开始 etcd 并没有存储键 `cc` 的值，随后写入新的键值对并测试将其删除。
@@ -347,10 +407,12 @@ Watch API 提供了一个基于事件的接口，用于异步监视键的更改�
 
 在 rpc.proto 中 Watch service 定义如下：
 
-![image.png](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9b4236d94a8142619bf7437cf956d64f~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp?)
+![[6.jpg]]
 
-```scss
-service Watch { rpc Watch(stream WatchRequest) returns (stream WatchResponse) {} }
+```go
+service Watch {
+  rpc Watch(stream WatchRequest) returns (stream WatchResponse) {}
+}
 ```
 
 Watch 观察将要发生或者已经发生的事件。输入和输出都是流;输入流用于创建和取消观察，而输出流发送事件。一个观察 RPC 可以在一次性在多个 key 范围上观察，并为多个观察流化事件。整个事件历史可以从最后压缩修订版本开始观察。 WatchService 只有一个 Watch 方法。
@@ -363,8 +425,17 @@ Lease service 提供租约的支持。Lease 是一种检测客户端存活状况
 
 在 rpc.proto 中 Lease service 定义的接口如下：
 
-```scss
-service Lease { rpc LeaseGrant(LeaseGrantRequest) returns (LeaseGrantResponse) {} rpc LeaseRevoke(LeaseRevokeRequest) returns (LeaseRevokeResponse) {} rpc LeaseKeepAlive(stream LeaseKeepAliveRequest) returns (stream LeaseKeepAliveResponse) {} rpc LeaseTimeToLive(LeaseTimeToLiveRequest) returns (LeaseTimeToLiveResponse) {} }
+```go
+service Lease {
+
+  rpc LeaseGrant(LeaseGrantRequest) returns (LeaseGrantResponse) {}
+
+  rpc LeaseRevoke(LeaseRevokeRequest) returns (LeaseRevokeResponse) {}
+
+  rpc LeaseKeepAlive(stream LeaseKeepAliveRequest) returns (stream LeaseKeepAliveResponse) {}
+
+  rpc LeaseTimeToLive(LeaseTimeToLiveRequest) returns (LeaseTimeToLiveResponse) {}
+}
 ```
 
 -   LeaseGrant 创建一个租约
@@ -376,8 +447,13 @@ service Lease { rpc LeaseGrant(LeaseGrantRequest) returns (LeaseGrantResponse) {
 
 Lock service 提供分布式共享锁的支持。Lock service 以 gRPC 接口的方式暴露客户端锁机制。在 v3lock.proto 中 Lock service 定义如下：
 
-```scss
-service Lock { rpc Lock(LockRequest) returns (LockResponse) {} rpc Unlock(UnlockRequest) returns (UnlockResponse) {} }
+```go
+service Lock {
+
+  rpc Lock(LockRequest) returns (LockResponse) {}
+
+  rpc Unlock(UnlockRequest) returns (UnlockResponse) {}
+}
 ```
 
 -   Lock 方法，在给定命令锁上获得分布式共享锁。
@@ -388,10 +464,3 @@ service Lock { rpc Lock(LockRequest) returns (LockResponse) {} rpc Unlock(Unlock
 本文主要介绍了 etcd 的 gRPC 通信接口以及 clientv3 客户端的实践，主要包括键值对操作（增删改查）、watch、Lease、锁和 Compact 等接口。通过本课时的学习，了解 etcd 客户端的使用以及常用功能的接口定义，对于我们在日常工作中能够得心应手的使用 etcd 实现相应的功能能够很有帮助。
 
 当然，本课时限于篇幅，只是介绍了常用的几个通信接口，如果你对其他的接口还有疑问，欢迎在留言区提出。下一课时我们将介绍 etcd 的存储，如何实现键值对的读写操作。
-
-### 推荐阅读
-
-1.  [etcd-raft 模块如何实现分布式一致性？](https://juejin.cn/post/7100007773072523295 "https://juejin.cn/post/7100007773072523295")
-2.  [etcd 申请租约、绑定和撤销租约的实现解析](https://juejin.cn/post/7091700004733059080 "https://juejin.cn/post/7091700004733059080")
-
-### 阅读最新文章，关注公众号：aoho求索
