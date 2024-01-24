@@ -17,7 +17,7 @@
 
 gomock模拟对象的方式是让用户声明一个接口，然后使用gomock提供的mockgen工具生成mock对象代码。要模拟(mock)被测试代码的依赖对象时候，即可使用mock出来的对象来模拟和记录依赖对象的各种行为：比如最常用的返回值，调用次数等等。文字叙述有点抽象，直接上代码：
 
-![[1.png]]
+![[图片/go 单元测试进阶篇/1.png]]
 
 dick.go中DickFunc依赖外部对象OutterObj，本示例就是说明如何使用gomock框架控制所依赖的对象。
 
@@ -44,11 +44,11 @@ mockgen -source src_mock.go -destination dst_mock.go
 
 执行完后，可在同目录下找到生成的dst\_mock.go文件，可以看到mockgen工具也实现了接口：
 
-![[2.png]]
+![[图片/go 单元测试进阶篇/2.png]]
 
 接下来就可以使用mockgen工具生成的NewMockInterFace来生产mock对象，使用这个mock对象。OutterFunc()这个函数，gomock在控制mock类时支持链式编程的方式，其原理和其他链式编程类似一直维持了一个Call对象，把需要控制的方法名，入参，出参，调用次数以及前置和后置动作等，最后使用反射来调用方法，所以这个Call对象是mock对象的代理。jmockit的早期版本也是jdk自带的java.reflect.Proxy动态代理实现的(最近的版本是动态Instrumentation配合代理模式)。  
 
-![[3.png]]
+![[图片/go 单元测试进阶篇/3.png]]
 
 在本示例中只简单的更改了返回值，抛砖引玉：
 
@@ -68,7 +68,7 @@ func TestDickFunc(t *testing.T ){
 
 使用go test命令执行这个单测  
 
-![[4.png]]
+![[图片/go 单元测试进阶篇/4.png]]
 
 从结果看：本来应该输出3，最后输出就是10，和其他语言mock框架相似，生产出来的Mock对象不用自己去重定义这么麻烦。
 
