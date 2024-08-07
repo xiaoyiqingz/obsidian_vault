@@ -6,7 +6,7 @@
 
 大部分的配置信息，我们都是配置在application.properties，那么这个文件是否可以外置呐？这个当然是可以的。
 
-首先在application.preperties定义一个属性：
+首先在 `application.preperties` 定义一个属性：
 `demo.name = hello.01`
 
 在Controller进行使用：
